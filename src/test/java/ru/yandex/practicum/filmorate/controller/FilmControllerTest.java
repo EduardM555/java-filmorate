@@ -68,7 +68,7 @@ class FilmControllerTest {
                 LocalDate.of(2002, 1, 1), 90);
         filmController.create(film);
 
-        assertEquals(200, filmController.getFilms().get(3).getDescription().length());
+        assertEquals(200, filmController.getFilms().get(1).getDescription().length());
     }
 
     @Test
