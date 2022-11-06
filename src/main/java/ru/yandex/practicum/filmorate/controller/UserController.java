@@ -17,6 +17,7 @@ import java.util.Map;
 public class UserController {
 
     private Map<Integer, User> users = new HashMap<>();
+    private int generatedId = 0;
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
 
     public Map<Integer, User> getUsers() {
@@ -30,17 +31,21 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) throws ValidationException {
-            if (!validate(user)) {
-                log.info("Ошибка", new ValidationException("Ошибка валидации пользователя."));
+        if (!validate(user)) {
+                log.info("Ошибка");
                 throw new ValidationException("Ошибка валидации пользователя.");
             }
+        user.setId(generateId());
         users.put(user.getId(), user);
-        log.info("Объект: {}");
+        log.info("Объект: {}", user);
         return user;
     }
 
     @PutMapping
     public User putUser(@Valid @RequestBody User user) throws ValidationException {
+        if (!users.containsKey(user.getId())) {
+            throw new ValidationException("Ошибка валидации пользователя.");
+        }
         users.put(user.getId(), user);
         return user;
     }
@@ -61,5 +66,10 @@ public class UserController {
         }
         if (user.getBirthday().isAfter(LocalDate.now())) return false;
         return true;
+    }
+
+    public int generateId() {
+        ++generatedId;
+        return generatedId;
     }
 }

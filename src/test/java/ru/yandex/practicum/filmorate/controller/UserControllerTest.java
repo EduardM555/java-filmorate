@@ -13,17 +13,22 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class UserControllerTest {
     @Autowired
-    UserController userController;
-    User user1 = new User(
+    private UserController userController;
+    private User user1 = new User(
             "user1@mail.ru",
             "user1Login",
             "user1Name",
             LocalDate.of(1983, 4, 26));
-    User user2 = new User(
+    private User user2 = new User(
             "user2@mail.ru",
             "user2Login",
             "user2Name",
             LocalDate.of(1987, 7, 27));
+    private User user3 = new User(
+            "user3@mail.ru",
+            "user3Login",
+            "user3Name",
+            LocalDate.of(2000, 1, 1));
 
     @BeforeEach
     void setUp() {
@@ -31,25 +36,22 @@ class UserControllerTest {
     }
 
     @Test
-    void findAll() {
+    void findAllAndCreate() {
         assertEquals(0, userController.findAll().size());
-        userController.getUsers().put(1, user1);
-        userController.getUsers().put(2, user2);
+        userController.create(user1);
+        userController.create(user2);
+
+        assertEquals(user1, userController.getUsers().get(user1.getId()));
         assertEquals(2, userController.findAll().size());
     }
 
     @Test
-    void create() {
-        userController.create(user1);
-
-        assertEquals(user1, userController.getUsers().get(1));
-    }
-
-    @Test
     void putUser() {
-        userController.putUser(user1);
+        userController.create(user3);
+        user3.setName("user1NewName");
+        userController.putUser(user3);
 
-        assertEquals(user1, userController.getUsers().get(1));
+        assertEquals(user3, userController.getUsers().get(user3.getId()));
     }
 
     @Test
@@ -57,9 +59,9 @@ class UserControllerTest {
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> userController.create(new User(
                         "",
-                        "user3Login",
-                        "user3Name",
-                        LocalDate.of(2000, 1, 1))));
+                        "user4Login",
+                        "user4Name",
+                        LocalDate.of(2001, 1, 1))));
 
         assertEquals("Ошибка валидации пользователя.", exception.getMessage());
     }
@@ -67,22 +69,22 @@ class UserControllerTest {
     @Test
     void createUserWithBlankName() {
         User user = userController.create(new User(
-                "user3mail.ru@",
-                "user3Login",
+                "user5mail.ru@",
+                "user5Login",
                 " ",
-                LocalDate.of(2000, 1, 1)));
+                LocalDate.of(2002, 1, 1)));
 
-        assertEquals("user3Login", user.getName());
+        assertEquals("user5Login", user.getName());
     }
 
     @Test
     void createUserWithWrongEmail() {
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> userController.create(new User(
-                        "user3.mail.ru",
-                        "user3Login",
-                        "user3Name",
-                        LocalDate.of(2000, 1, 1))));
+                        "user6.mail.ru",
+                        "user6Login",
+                        "user6Name",
+                        LocalDate.of(2003, 1, 1))));
 
         assertEquals("Ошибка валидации пользователя.", exception.getMessage());
     }
@@ -91,9 +93,9 @@ class UserControllerTest {
     void createUserWithWrongBirthday() {
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> userController.create(new User(
-                        "user3@mail.ru",
-                        "user3Login",
-                        "user3Name",
+                        "user7@mail.ru",
+                        "user7Login",
+                        "user7Name",
                         LocalDate.of(2100, 1, 1))));
 
         assertEquals("Ошибка валидации пользователя.", exception.getMessage());
@@ -103,9 +105,9 @@ class UserControllerTest {
     void createUserWithWrongLogin() {
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> userController.create(new User(
-                        "user3@mail.ru",
-                        "user3 Login",
-                        "user3Name",
+                        "user8@mail.ru",
+                        "user8 Login",
+                        "user8Name",
                         LocalDate.of(2000, 1, 1))));
 
         assertEquals("Ошибка валидации пользователя.", exception.getMessage());

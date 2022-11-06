@@ -15,11 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmControllerTest {
 
     @Autowired
-    FilmController filmController;
-    Film film1 = new Film("film1Name", "film1Description",
+    private FilmController filmController;
+    private Film film1 = new Film("film1Name", "film1Description",
             LocalDate.of(2000, 1, 1), 90);
-    Film film2 = new Film("film2Name", "film2Description",
+    private Film film2 = new Film("film2Name", "film2Description",
             LocalDate.of(2001, 1, 1), 90);
+    private Film film3 = new Film("film3Name", "film3Description",
+            LocalDate.of(2002, 1, 1), 90);
 
     @BeforeEach
     void setUp() {
@@ -27,31 +29,29 @@ class FilmControllerTest {
     }
 
     @Test
-    void findAll() {
+    void findAllAndCreate() {
         assertEquals(0, filmController.getFilms().size());
-        filmController.getFilms().put(1, film1);
-        filmController.getFilms().put(2, film2);
+
+        filmController.create(film1);
+        filmController.create(film2);
+
+        assertEquals(film1, filmController.getFilms().get(film1.getId()));
         assertEquals(2, filmController.getFilms().size());
     }
 
     @Test
-    void create() {
-        filmController.create(film1);
-
-        assertEquals(film1, filmController.getFilms().get(1));
-    }
-
-    @Test
     void putFilm() {
-        filmController.putFilm(film1);
+        filmController.create(film3);
+        film3.setName("film3NewName");
+        filmController.putFilm(film3);
 
-        assertEquals(film1, filmController.getFilms().get(1));
+        assertEquals(film3, filmController.getFilms().get(film3.getId()));
     }
 
     @Test
     void createFilmWithBlankName() {
         ValidationException exception = assertThrows(ValidationException.class,
-                () -> filmController.create(new Film(" ", "film3Description",
+                () -> filmController.create(new Film(" ", "film4Description",
                         LocalDate.of(2002, 1, 1), 90)));
 
         assertEquals("Ошибка валидации фильма.", exception.getMessage());
@@ -63,12 +63,12 @@ class FilmControllerTest {
         for (int i = 0; i < 200; i++) {
             stringBuilder.append(1);
         }
-        String s = stringBuilder.toString();
-        Film film = new Film("film3Name", s,
+        String s = String.valueOf(stringBuilder);
+        Film film = new Film("film5Name", s,
                 LocalDate.of(2002, 1, 1), 90);
         filmController.create(film);
 
-        assertEquals(200, filmController.getFilms().get(1).getDescription().length());
+        assertEquals(200, filmController.getFilms().get(film.getId()).getDescription().length());
     }
 
     @Test
@@ -77,9 +77,9 @@ class FilmControllerTest {
         for (int i = 0; i < 201; i++) {
             stringBuilder.append(1);
         }
-        String s = stringBuilder.toString();
+        String s = String.valueOf(stringBuilder);
         ValidationException exception = assertThrows(ValidationException.class,
-                () -> filmController.create(new Film("film3Name", s,
+                () -> filmController.create(new Film("film6Name", s,
                         LocalDate.of(2002, 1, 1), 90)));
 
         assertEquals("Ошибка валидации фильма.", exception.getMessage());

@@ -17,6 +17,7 @@ import java.util.Map;
 public class FilmController {
 
     private Map<Integer, Film> films = new HashMap();
+    private int generatedId = 0;
     private final static Logger log = LoggerFactory.getLogger(FilmController.class);
 
     public Map<Integer, Film> getFilms() {
@@ -31,25 +32,35 @@ public class FilmController {
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         if (!validate(film)) {
-            log.info("Ошибка", new ValidationException("Ошибка валидации фильма."));
+            log.info("Ошибка");
             throw new ValidationException("Ошибка валидации фильма.");
         }
+        film.setId(generateId());
         films.put(film.getId(), film);
-        log.info("Объект: {}");
+        log.info("Объект: {}", film);
         return film;
     }
 
     @PutMapping
     public Film putFilm(@Valid @RequestBody Film film) {
-        return create(film);
+        if (!films.containsKey(film.getId())) {
+            throw new ValidationException("Ошибка валидации фильма.");
+        }
+        films.put(film.getId(), film);
+        return film;
     }
 
-    boolean validate(Film film) {
+    private boolean validate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) return false;
         if (film.getDescription().length() > 200) return false;
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) return false;
         if (film.getDuration() < 0) return false;
         return true;
+    }
+
+    public int generateId() {
+        ++generatedId;
+        return generatedId;
     }
 
 }
