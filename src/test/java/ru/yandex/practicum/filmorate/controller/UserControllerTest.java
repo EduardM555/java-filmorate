@@ -63,13 +63,13 @@ class UserControllerTest {
                         "user4Name",
                         LocalDate.of(2001, 1, 1))));
 
-        assertEquals("Ошибка валидации пользователя.", exception.getMessage());
+        assertEquals("Ошибка валидации пользователя при создании.", exception.getMessage());
     }
 
     @Test
     void createUserWithBlankName() {
         User user = userController.create(new User(
-                "user5mail.ru@",
+                "user5@mail.ru",
                 "user5Login",
                 " ",
                 LocalDate.of(2002, 1, 1)));
@@ -86,7 +86,7 @@ class UserControllerTest {
                         "user6Name",
                         LocalDate.of(2003, 1, 1))));
 
-        assertEquals("Ошибка валидации пользователя.", exception.getMessage());
+        assertEquals("Ошибка валидации пользователя при создании.", exception.getMessage());
     }
 
     @Test
@@ -98,7 +98,7 @@ class UserControllerTest {
                         "user7Name",
                         LocalDate.of(2100, 1, 1))));
 
-        assertEquals("Ошибка валидации пользователя.", exception.getMessage());
+        assertEquals("Ошибка валидации пользователя при создании.", exception.getMessage());
     }
 
     @Test
@@ -110,6 +110,6 @@ class UserControllerTest {
                         "user8Name",
                         LocalDate.of(2000, 1, 1))));
 
-        assertEquals("Ошибка валидации пользователя.", exception.getMessage());
+        assertEquals("Ошибка валидации пользователя при создании.", exception.getMessage());
     }
 }

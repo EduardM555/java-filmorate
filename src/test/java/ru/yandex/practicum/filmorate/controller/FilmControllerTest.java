@@ -54,7 +54,7 @@ class FilmControllerTest {
                 () -> filmController.create(new Film(" ", "film4Description",
                         LocalDate.of(2002, 1, 1), 90)));
 
-        assertEquals("Ошибка валидации фильма.", exception.getMessage());
+        assertEquals("Ошибка валидации фильма при создании.", exception.getMessage());
     }
 
     @Test
@@ -82,6 +82,6 @@ class FilmControllerTest {
                 () -> filmController.create(new Film("film6Name", s,
                         LocalDate.of(2002, 1, 1), 90)));
 
-        assertEquals("Ошибка валидации фильма.", exception.getMessage());
+        assertEquals("Ошибка валидации фильма при создании.", exception.getMessage());
     }
 }
