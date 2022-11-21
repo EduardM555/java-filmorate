@@ -2,70 +2,70 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private Map<Integer, Film> films = new HashMap();
-    private int generatedId = 0;
+    FilmService filmService;
 
-    public Map<Integer, Film> getFilms() {
-        return films;
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Film> findAll() {
-        return films.values();
+        return filmService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable("id") long id) {
+        return filmService.getFilmById(id);
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if (!validate(film)) {
-            log.info("Ошибка создания объекта Film: {}", film);
-            throw new ValidationException("Ошибка валидации фильма при создании.");
-        }
-        film.setId(generateId());
-        films.put(film.getId(), film);
-        log.info("Успешное создание объекта: {}", film);
-        return film;
+        return filmService.create(film);
     }
 
     @PutMapping
     public Film putFilm(@Valid @RequestBody Film film) {
-        if (!films.containsKey(film.getId())) {
-            throw new ValidationException("Фильма: " + film + " в базе нет.");
-        }
-        if (!validate(film)) {
-            log.info("Ошибка обновления объекта Film: {}", film);
-            throw new ValidationException("Ошибка валидации фильма при обновлении.");
-        }
-        films.put(film.getId(), film);
-        log.info("Успешное обновление объекта Film: {}", film);
-        return film;
+        return filmService.putFilm(film);
     }
 
-    private boolean validate(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) return false;
-        if (film.getDescription().length() > 200) return false;
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) return false;
-        if (film.getDuration() < 0) return false;
-        return true;
+    @DeleteMapping
+    public Film remove(@Valid @RequestBody long id) {
+        return filmService.delete(id);
     }
 
-    private int generateId() {
-        ++generatedId;
-        log.info("Объекту класса Film присовен id: {}", generatedId);
-        return generatedId;
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable("id") long id,
+                        @PathVariable("userId") long userId) {
+        filmService.addLike(id, userId);
     }
 
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLike(@PathVariable("id") long id,
+                        @PathVariable("userId") long userId) {
+        filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(
+            @RequestParam(value = "count", defaultValue = "10", required = false) long count) {
+        return filmService.findAll().stream()
+                .sorted((x1, x2) -> (int) (x2.getRate() - x1.getRate()))
+                .limit(count)
+                .collect(Collectors.toList());
+    }
 }

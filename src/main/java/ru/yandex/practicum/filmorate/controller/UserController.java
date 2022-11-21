@@ -4,11 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -16,65 +18,54 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
-    private Map<Integer, User> users = new HashMap<>();
-    private int generatedId = 0;
+    UserService userService;
 
-    public Map<Integer, User> getUsers() {
-        return users;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
     public Collection<User> findAll() {
-        return users.values();
+        return userService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable("id") long id) {
+        return userService.getUserById(id);
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) throws ValidationException {
-        if (!validate(user)) {
-                log.info("Ошибка создания объекта User: {}", user);
-                throw new ValidationException("Ошибка валидации пользователя при создании.");
-            }
-        user.setId(generateId());
-        users.put(user.getId(), user);
-        log.info("Успешное создание объекта: {}", user);
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
     public User putUser(@Valid @RequestBody User user) throws ValidationException {
-        if (!users.containsKey(user.getId())) {
-            throw new ValidationException("Пользователя: " + user + " в базе нет.");
-        }
-        if (!validate(user)) {
-            log.info("Ошибка обнолвения объекта User: {}", user);
-            throw new ValidationException("Ошибка валидации пользователя при обнолвении.");
-        }
-        log.info("Успешное обновление объекта User: {}", user);
-        users.put(user.getId(), user);
-        return user;
+        return userService.update(user);
     }
 
-    boolean validate(User user) {
-        if (user.getEmail() == null
-                || user.getEmail().isBlank()
-                || !user.getEmail().contains("@")) {
-            return false;
-        }
-        if (user.getLogin() == null
-                || user.getLogin().isBlank()
-                || user.getLogin().contains(" ")) {
-            return false;
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) return false;
-        return true;
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable("id") long id,
+                          @PathVariable("friendId") long friendId) {
+        userService.addFriend(id, friendId);
     }
 
-    private int generateId() {
-        ++generatedId;
-        log.info("Объекту класса User присовен id: {}", generatedId);
-        return generatedId;
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable("id") long id,
+                             @PathVariable("friendId") long friendId) {
+        userService.removeFriend(id, friendId);
     }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable("id") long id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriends(@PathVariable("id") long id,
+                                             @PathVariable("otherId") long otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+
 }
