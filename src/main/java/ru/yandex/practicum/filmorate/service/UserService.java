@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ru.yandex.practicum.filmorate.exception.FriendNotFoundException;
@@ -52,26 +51,12 @@ public class UserService {
     }
 
     public User getUserById(long userId) {
-//        User user = userStorage.getById(userId);
-//        if (!validate(user)) {
-//            log.info("Ошибка получения объекта User: {}", user);
-//            throw new ValidationException("Ошибка валидации пользователя при получении.");
-//        }
-//        if (user == null) {
-//            throw new UserNotFoundException("Ошибка запроса пользователя с id " + userId);
-//        }
         return userStorage.getById(userId);
     }
 
     public void addFriend(long userId, long friendId) {
         User user = userStorage.getAll().get(userId);
         User friend = userStorage.getAll().get(friendId);
-//        if (!validate(user)) {
-//            throw new ValidationException("Ошибка валидации пользователя при добавдении в друзья.");
-//        }
-//        if (!validate(friend)) {
-//            throw new ValidationException("Ошибка валидации друга при добавдении в друзья.");
-//        }
         if (!userStorage.getAll().containsKey(userId)) {
             throw new UserNotFoundException("Ошибка валидации пользователя при добавдении в друзья в storage.");
         }

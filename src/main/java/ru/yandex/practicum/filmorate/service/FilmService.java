@@ -22,7 +22,6 @@ import java.util.Collection;
 @Service
 public class FilmService {
     FilmStorage filmStorage;
-    UserService userService;
     private long generatedId = 0;
 
     @Autowired
@@ -70,11 +69,6 @@ public class FilmService {
     }
 
     public void removeLike(long id, long userid) {
-//        Film film = filmStorage.getById(id);
-//        User user = userService.getUserById(userid);
-//        if (film == null || user == null) {
-//            throw new UserNotFoundException("Нет юзера либо фильма.");
-//        }
         filmStorage.getById(id).removeLike(userid);
     }
 

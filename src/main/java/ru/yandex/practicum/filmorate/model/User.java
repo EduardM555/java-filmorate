@@ -1,23 +1,23 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-//@Data
 @Getter
 @Setter
 public class User extends StorageData {
 
     @Email
     private String email;
+    @NotBlank
     private String login;
     private String name;
     private LocalDate birthday;
