@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
@@ -9,10 +11,11 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+//@Data
+@Getter
+@Setter
 public class User extends StorageData {
 
-//    private Long id;
     @Email
     private String email;
     private String login;
@@ -27,5 +30,17 @@ public class User extends StorageData {
         this.login = login;
         this.name = name;
         this.birthday = birthday;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "email='" + email + '\'' +
+                ", login='" + login + '\'' +
+                ", name='" + name + '\'' +
+                ", birthday=" + birthday +
+                ", friendsIds=" + friendsIds +
+                ", id=" + id +
+                '}';
     }
 }

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 public abstract class StorageData {
-    private long id;
+    protected long id;
 
     public long getId() {
         return id;

@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
-@RestControllerAdvice("ru.yandex.practicum.controller")
+@RestControllerAdvice("ru.yandex.practicum.filmorate")
 @Slf4j
 public class ErrorHandler {
 

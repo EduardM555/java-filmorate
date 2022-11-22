@@ -66,12 +66,12 @@ public class UserService {
     public void addFriend(long userId, long friendId) {
         User user = userStorage.getAll().get(userId);
         User friend = userStorage.getAll().get(friendId);
-        if (!validate(user)) {
-            throw new ValidationException("Ошибка валидации пользователя при добавдении в друзья.");
-        }
-        if (!validate(friend)) {
-            throw new ValidationException("Ошибка валидации друга при добавдении в друзья.");
-        }
+//        if (!validate(user)) {
+//            throw new ValidationException("Ошибка валидации пользователя при добавдении в друзья.");
+//        }
+//        if (!validate(friend)) {
+//            throw new ValidationException("Ошибка валидации друга при добавдении в друзья.");
+//        }
         if (!userStorage.getAll().containsKey(userId)) {
             throw new UserNotFoundException("Ошибка валидации пользователя при добавдении в друзья в storage.");
         }
