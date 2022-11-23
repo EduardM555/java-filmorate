@@ -52,6 +52,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(id)) {
             throw new FilmNotFoundException("Фильма с id: " + id + " в базе нет.");
         }
+        log.info("Следующее действие получение объекта Film по id: {}", id);
         return films.get(id);
     }
 }

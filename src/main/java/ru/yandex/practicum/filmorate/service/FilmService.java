@@ -3,10 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -17,11 +14,13 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
-    FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
     private long generatedId = 0;
 
     @Autowired
@@ -39,6 +38,7 @@ public class FilmService {
             throw new ValidationException("Ошибка валидации фильма при создании.");
         }
         film.setId(generateId());
+        log.info("Объекту класса Film присовен id: {}", film.getId());
         return filmStorage.create(film);
     }
 
@@ -72,6 +72,13 @@ public class FilmService {
         filmStorage.getById(id).removeLike(userid);
     }
 
+    public List<Film> getPopularFilms(long count) {
+        return findAll().stream()
+                .sorted((x1, x2) -> (int) (x2.getRate() - x1.getRate()))
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
     private boolean validate(Film film) {
         if (film.getName() == null || film.getName().isBlank()) return false;
         if (film.getDescription().length() > 200) return false;
@@ -82,7 +89,6 @@ public class FilmService {
 
     private long generateId() {
         ++generatedId;
-        log.info("Объекту класса Film присовен id: {}", generatedId);
         return generatedId;
     }
 }

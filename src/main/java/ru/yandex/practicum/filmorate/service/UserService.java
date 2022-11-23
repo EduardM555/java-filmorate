@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class UserService {
-    public final UserStorage userStorage;
+    private final UserStorage userStorage;
     private long generatedId = 0;
 
     public UserService(UserStorage userStorage) {
@@ -35,6 +35,7 @@ public class UserService {
             throw new ValidationException("Ошибка валидации пользователя при создании.");
         }
         user.setId(generateId());
+        log.info("Объекту класса User присовен id: {}", user.getId());
         return userStorage.create(user);
     }
 
@@ -64,7 +65,9 @@ public class UserService {
             throw new FriendNotFoundException("Ошибка валидации друга при добавдении в друзья в storage.");
         }
         user.getFriendsIds().add(friend.getId());
+        log.info("В друзья объекта User добавлен объект с friendId {}", friendId);
         friend.getFriendsIds().add(user.getId());
+        log.info("В друзья объекта User-Friend добавлен объект с userId {}", userId);
     }
 
     public void removeFriend(long userId, long friendId) {
@@ -77,7 +80,9 @@ public class UserService {
             throw new FriendNotFoundException("Ошибка валидации друга при удалении из друзей из storage.");
         }
         user.getFriendsIds().remove(friend.getId());
+        log.info("Из друзей объекта User удален объект с friendId {}", friendId);
         friend.getFriendsIds().remove(user.getId());
+        log.info("Из друзей объекта User-Friend удален объект с userId {}", userId);
     }
 
     public List<User> getFriends(long userId) {
@@ -95,7 +100,6 @@ public class UserService {
 
     private long generateId() {
         ++generatedId;
-        log.info("Объекту класса User присовен id: {}", generatedId);
         return generatedId;
     }
 
