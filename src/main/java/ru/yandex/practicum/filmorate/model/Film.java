@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 
 import javax.validation.constraints.Min;
@@ -15,12 +13,17 @@ import java.util.Set;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@EqualsAndHashCode(of = "id")
 public class Film extends StorageData {
 
     @NotBlank
     private String name;
     @Size(min = 1, max = 200)
     private String description;
+    private Mpa mpa;
     @NonNull
     private LocalDate releaseDate;
     @Min(1)
@@ -29,6 +32,7 @@ public class Film extends StorageData {
     private Set<Long> userIds = new HashSet<>();
     @JsonIgnore
     private long rate = 0;
+    private Set<Genre> genres;
 
     public Film(String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;
@@ -48,18 +52,5 @@ public class Film extends StorageData {
         }
         userIds.remove(userId);
         rate = userIds.size();
-    }
-
-    @Override
-    public String toString() {
-        return "Film{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", releaseDate=" + releaseDate +
-                ", duration=" + duration +
-                ", userIds=" + userIds +
-                ", rate=" + rate +
-                ", id=" + id +
-                '}';
     }
 }
