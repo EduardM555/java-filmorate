@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.model;
 
 public abstract class StorageData {
@@ -11,3 +12,4 @@ public abstract class StorageData {
         this.id = id;
     }
 }
+*/

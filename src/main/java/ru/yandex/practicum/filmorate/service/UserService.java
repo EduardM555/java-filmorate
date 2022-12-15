@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.exception.FriendNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dao.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -18,15 +18,17 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class UserService {
+
     private final UserStorage userStorage;
-    private long generatedId = 0;
+//    private long generatedId = 0;
 
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
-    public Collection<User> findAll() {
-        return userStorage.getAll().values();
+    public List<User> findAll() {
+//        return userStorage.findAll().values();
+        return userStorage.findAll();
     }
 
     public User create(User user) {
@@ -34,74 +36,115 @@ public class UserService {
             log.info("Ошибка создания объекта User: {}", user);
             throw new ValidationException("Ошибка валидации пользователя при создании.");
         }
-        user.setId(generateId());
+//        user.setId(generateId());
         log.info("Объекту класса User присовен id: {}", user.getId());
-        return userStorage.create(user);
+        return userStorage.save(user);
     }
 
     public User update(User user) {
-        if (!validate(user)) {
-            log.info("Ошибка обновления объекта User: {}", user);
-            throw new ValidationException("Ошибка валидации пользователя при обнолвении.");
+//        if (!validate(user)) {
+//            log.info("Ошибка обновления объекта User: {}", user);
+//            throw new ValidationException("Ошибка валидации пользователя при обнолвении.");
+//        }
+        User newUser = userStorage.findUserById(user.getId());
+        if (newUser == null) {
+            throw new UserNotFoundException("Ошибка валидации пользователя при обновлении," +
+                    " userId=" + user.getId());
         }
         return userStorage.update(user);
     }
 
-    public User delete(long id) {
-        return userStorage.delete(id);
+    public void delete(long id) {
+        userStorage.delete(id);
     }
 
     public User getUserById(long userId) {
-        return userStorage.getById(userId);
+        User user = userStorage.findUserById(userId);
+        if (user == null) {
+            throw new UserNotFoundException("Ошибка валидации пользователя/друга по id=" + userId);
+        }
+        return user;
     }
+
+//    public void addFriend(long userId, long friendId) {
+//        User user = userStorage.findAll().get(userId);
+//        User friend = userStorage.findAll().get(friendId);
+//        if (!userStorage.findAll().containsKey(userId)) {
+//            throw new UserNotFoundException("Ошибка валидации пользователя при добавдении в друзья в storage.");
+//        }
+//        if (!userStorage.findAll().containsKey(friendId)) {
+//            throw new FriendNotFoundException("Ошибка валидации друга при добавдении в друзья в storage.");
+//        }
+//        user.getFriendsIds().add(friend.getId());
+//        log.info("В друзья объекта User добавлен объект с friendId {}", friendId);
+//        friend.getFriendsIds().add(user.getId());
+//        log.info("В друзья объекта User-Friend добавлен объект с userId {}", userId);
+//    }
 
     public void addFriend(long userId, long friendId) {
-        User user = userStorage.getAll().get(userId);
-        User friend = userStorage.getAll().get(friendId);
-        if (!userStorage.getAll().containsKey(userId)) {
-            throw new UserNotFoundException("Ошибка валидации пользователя при добавдении в друзья в storage.");
-        }
-        if (!userStorage.getAll().containsKey(friendId)) {
-            throw new FriendNotFoundException("Ошибка валидации друга при добавдении в друзья в storage.");
-        }
-        user.getFriendsIds().add(friend.getId());
-        log.info("В друзья объекта User добавлен объект с friendId {}", friendId);
-        friend.getFriendsIds().add(user.getId());
-        log.info("В друзья объекта User-Friend добавлен объект с userId {}", userId);
+//        if (getUserById(userId) == null) {
+//            throw new UserNotFoundException("Ошибка валидации пользователя при добавдении в друзья," +
+//                    " userId=" + userId);
+//        }
+//        if (getUserById(friendId) == null) {
+//            throw new FriendNotFoundException("Ошибка валидации друга при добавдении в друзья, friendId=" +
+//                    friendId);
+//        }
+        getUserById(userId);
+        getUserById(friendId);
+        userStorage.addFriend(userId, friendId);
     }
 
+//    public void removeFriend(long userId, long friendId) {
+//        User user = userStorage.findAll().get(userId);
+//        User friend = userStorage.findAll().get(friendId);
+//        if (!userStorage.findAll().containsKey(userId)) {
+//            throw new UserNotFoundException("Ошибка валидации пользователя при удалении из друзей из storage.");
+//        }
+//        if (!userStorage.findAll().containsKey(friendId)) {
+//            throw new FriendNotFoundException("Ошибка валидации друга при удалении из друзей из storage.");
+//        }
+//        user.getFriendsIds().remove(friend.getId());
+//        log.info("Из друзей объекта User удален объект с friendId {}", friendId);
+//        friend.getFriendsIds().remove(user.getId());
+//        log.info("Из друзей объекта User-Friend удален объект с userId {}", userId);
+//    }
     public void removeFriend(long userId, long friendId) {
-        User user = userStorage.getAll().get(userId);
-        User friend = userStorage.getAll().get(friendId);
-        if (!userStorage.getAll().containsKey(userId)) {
-            throw new UserNotFoundException("Ошибка валидации пользователя при удалении из друзей из storage.");
-        }
-        if (!userStorage.getAll().containsKey(friendId)) {
-            throw new FriendNotFoundException("Ошибка валидации друга при удалении из друзей из storage.");
-        }
-        user.getFriendsIds().remove(friend.getId());
-        log.info("Из друзей объекта User удален объект с friendId {}", friendId);
-        friend.getFriendsIds().remove(user.getId());
-        log.info("Из друзей объекта User-Friend удален объект с userId {}", userId);
+        userStorage.removeFriend(userId, friendId);
     }
+
+//    public List<User> getFriends(long userId) {
+//        return userStorage.findAll().get(userId).getFriendsIds().stream()
+//                .map(id -> userStorage.findAll().get(id))
+//                .collect(Collectors.toList());
+//    }
 
     public List<User> getFriends(long userId) {
-        return userStorage.getAll().get(userId).getFriendsIds().stream()
-                .map(id -> userStorage.getAll().get(id))
+        getUserById(userId);
+        return userStorage.getFriends(userId);
+    }
+
+//    public Collection<User> getCommonFriends(long userId, long friendId) {
+//        return userStorage.findAll().get(userId).getFriendsIds().stream()
+//                .filter(id -> userStorage.findAll().get(friendId).getFriendsIds().contains(id))
+//                .map(id -> userStorage.findAll().get(id))
+//                .collect(Collectors.toList());
+//    }
+
+//    public List<User> getCommonFriends(long userId, long friendId) {
+//        return userStorage.getCommonFriends(userId, friendId);
+//    }
+
+    public List<User> getCommonFriends(long userId, long friendId) {
+        return getFriends(userId).stream()
+                .filter(user -> getFriends(friendId).contains(user))
                 .collect(Collectors.toList());
     }
 
-    public Collection<User> getCommonFriends(long userId, long friendId) {
-        return userStorage.getAll().get(userId).getFriendsIds().stream()
-                .filter(id -> userStorage.getAll().get(friendId).getFriendsIds().contains(id))
-                .map(id -> userStorage.getAll().get(id))
-                .collect(Collectors.toList());
-    }
-
-    private long generateId() {
-        ++generatedId;
-        return generatedId;
-    }
+//    private long generateId() {
+//        ++generatedId;
+//        return generatedId;
+//    }
 
     private boolean validate(User user) {
         if (user.getEmail() == null

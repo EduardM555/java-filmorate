@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FriendNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -20,12 +22,12 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public Collection<User> findAll() {
+    public List<User> findAll() {
         return userService.findAll();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") long id) {
+    public User getUserById(@PathVariable("id") long id) throws UserNotFoundException {
         return userService.getUserById(id);
     }
 
@@ -35,13 +37,14 @@ public class UserController {
     }
 
     @PutMapping
-    public User putUser(@Valid @RequestBody User user) throws ValidationException {
+    public User putUser(@Valid @RequestBody User user) throws UserNotFoundException, FriendNotFoundException {
         return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable("id") long id,
-                          @PathVariable("friendId") long friendId) {
+                          @PathVariable("friendId") long friendId)
+            throws UserNotFoundException, FriendNotFoundException {
         userService.addFriend(id, friendId);
     }
 
@@ -52,12 +55,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable("id") long id) {
+    public List<User> getFriends(@PathVariable("id") long id) throws UserNotFoundException {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable("id") long id,
+    public List<User> getCommonFriends(@PathVariable("id") long id,
                                              @PathVariable("otherId") long otherId) {
         return userService.getCommonFriends(id, otherId);
     }

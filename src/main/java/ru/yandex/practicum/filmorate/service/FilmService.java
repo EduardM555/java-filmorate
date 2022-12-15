@@ -4,12 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dao.FilmStorage;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -23,13 +20,15 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private long generatedId = 0;
 
-    @Autowired
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
 
+    @Autowired
+
+
     public Collection<Film> findAll() {
-        return filmStorage.getAll().values();
+        return filmStorage.findAll();
     }
 
     public Film create(Film film) {
@@ -39,7 +38,7 @@ public class FilmService {
         }
         film.setId(generateId());
         log.info("Объекту класса Film присовен id: {}", film.getId());
-        return filmStorage.create(film);
+        return filmStorage.save(film);
     }
 
     public Film putFilm(@Valid @RequestBody Film film) {
@@ -51,7 +50,7 @@ public class FilmService {
     }
 
     public Film getFilmById(long filmId) {
-        Film film = filmStorage.getById(filmId);
+        Film film = filmStorage.findFilmById(filmId);
         if (!validate(film)) {
             log.info("Ошибка получения объекта Film: {}", film);
             throw new ValidationException("Ошибка валидации фильма при получении.");
@@ -59,24 +58,25 @@ public class FilmService {
         return film;
     }
 
-    public Film delete(long id) {
-        return filmStorage.delete(id);
+    public void delete(long id) {
+        filmStorage.delete(id);
     }
 
 
     public void addLike(long id, long userId) {
-        filmStorage.getById(id).addLike(userId);
+//        filmStorage.findFilmById(id).addLike(userId);
     }
 
     public void removeLike(long id, long userid) {
-        filmStorage.getById(id).removeLike(userid);
+//        filmStorage.findFilmById(id).removeLike(userid);
     }
 
     public List<Film> getPopularFilms(long count) {
-        return findAll().stream()
-                .sorted((x1, x2) -> (int) (x2.getRate() - x1.getRate()))
-                .limit(count)
-                .collect(Collectors.toList());
+//        return findAll().stream()
+//                .sorted((x1, x2) -> (int) (x2.getRate() - x1.getRate()))
+//                .limit(count)
+//                .collect(Collectors.toList());
+        return null;
     }
 
     private boolean validate(Film film) {
