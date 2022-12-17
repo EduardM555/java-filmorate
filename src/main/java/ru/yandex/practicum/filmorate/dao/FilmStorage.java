@@ -7,6 +7,7 @@ import java.util.Map;
 
 public interface FilmStorage {
 //    Map<Long, Film> findAll();
+//    Map<Long, Film> findAll();
     List<Film> findAll();
     Film save(Film film);
     Film update(Film film);

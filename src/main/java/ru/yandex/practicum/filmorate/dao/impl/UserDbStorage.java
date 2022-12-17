@@ -34,6 +34,7 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser);
     }
 
+
 //    public Map<Long, User> findAll() {
 //        Map<Long, User> users = new HashMap<>();
 //        String sqlQuery = "select USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY from USERS";
@@ -128,6 +129,10 @@ public class UserDbStorage implements UserStorage {
 //        jdbcTemplate.update(sqlQuery, friendId, userId);
     }
 
+//    TODO Задать вопрос по методу static
+
+//    TODO Задать вопрос по rowNum - где используется и как
+
     @Override
     public User findUserById(long id) {
         final String sqlQuery = "select USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY"
@@ -139,9 +144,6 @@ public class UserDbStorage implements UserStorage {
         }
         return users.get(0);
     }
-//    TODO Задать вопрос по методу static
-
-//    TODO Задать вопрос по rowNum - где используется и как
 
     static User makeUser(ResultSet rs, int rowNum) throws SQLException {
         return new User(rs.getLong("USER_ID"),

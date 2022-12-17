@@ -9,7 +9,7 @@ create table IF NOT EXISTS GENRES
 create table IF NOT EXISTS MPA
 (
     MPA_ID   INTEGER auto_increment,
-    MPA_NAME CHARACTER VARYING(255) not null,
+    MPA_NAME CHARACTER VARYING(255),
     constraint MPA_PK
         primary key (MPA_ID)
 );

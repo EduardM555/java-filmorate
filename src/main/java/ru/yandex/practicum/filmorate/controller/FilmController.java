@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -22,22 +24,22 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public List<Film> findAll() {
         return filmService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable("id") long id) {
+    public Film getFilmById(@PathVariable("id") long id) throws ValidationException, FilmNotFoundException {
         return filmService.getFilmById(id);
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) throws ValidationException {
         return filmService.create(film);
     }
 
     @PutMapping
-    public Film putFilm(@Valid @RequestBody Film film) {
+    public Film putFilm(@Valid @RequestBody Film film) throws ValidationException, FilmNotFoundException {
         return filmService.putFilm(film);
     }
 

@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
@@ -17,18 +19,22 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmService {
-    private final FilmStorage filmStorage;
-    private long generatedId = 0;
+//    private final FilmStorage filmStorage;
+    private final FilmDbStorage filmDbStorage;
+//    private long generatedId = 0;
 
-    public FilmService(FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+//    public FilmService(FilmStorage filmStorage) {
+//        this.filmStorage = filmStorage;
+//    }
+
+
+    public FilmService(FilmDbStorage filmDbStorage) {
+        this.filmDbStorage = filmDbStorage;
     }
 
-    @Autowired
-
-
-    public Collection<Film> findAll() {
-        return filmStorage.findAll();
+    public List<Film> findAll() {
+        log.info("Сейчас будет запрос в базу на получение фильмов findAll()");
+        return filmDbStorage.findAll();
     }
 
     public Film create(Film film) {
@@ -36,30 +42,34 @@ public class FilmService {
             log.info("Ошибка создания объекта Film: {}", film);
             throw new ValidationException("Ошибка валидации фильма при создании.");
         }
-        film.setId(generateId());
-        log.info("Объекту класса Film присовен id: {}", film.getId());
-        return filmStorage.save(film);
+//        film.setId(generateId());
+        log.info("Сейчас будет запись фильма в базу и присоение id");
+        return filmDbStorage.save(film);
     }
 
-    public Film putFilm(@Valid @RequestBody Film film) {
+    public Film putFilm(Film film) {
+        getFilmById(film.getId());
         if (!validate(film)) {
             log.info("Ошибка обновления объекта Film: {}", film);
             throw new ValidationException("Ошибка валидации фильма при обновлении.");
         }
-        return filmStorage.update(film);
+        return filmDbStorage.update(film);
     }
 
     public Film getFilmById(long filmId) {
-        Film film = filmStorage.findFilmById(filmId);
-        if (!validate(film)) {
-            log.info("Ошибка получения объекта Film: {}", film);
-            throw new ValidationException("Ошибка валидации фильма при получении.");
+        Film film = filmDbStorage.findFilmById(filmId);
+//        if (!validate(film)) {
+//            log.info("Ошибка получения объекта Film: {}", film);
+//            throw new ValidationException("Ошибка валидации фильма при получении.");
+//        }
+        if (film == null) {
+            throw new FilmNotFoundException("Фильма с id=" + filmId + " в базе нет.");
         }
         return film;
     }
 
     public void delete(long id) {
-        filmStorage.delete(id);
+        filmDbStorage.delete(id);
     }
 
 
@@ -87,8 +97,8 @@ public class FilmService {
         return true;
     }
 
-    private long generateId() {
-        ++generatedId;
-        return generatedId;
-    }
+//    private long generateId() {
+//        ++generatedId;
+//        return generatedId;
+//    }
 }
