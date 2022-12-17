@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,71 +44,56 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film save(Film film) {
-        String sqlQuery = "insert into FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION," +
-                " MPA_ID) values (?, ?, ?, ?, ?)";
+        String sqlQuery = "insert into FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, " +
+                "MPA_ID) values (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement stmt = con.prepareStatement(sqlQuery, new String[]{"FILM_ID"});
             stmt.setString(1, film.getName());
             stmt.setString(2, film.getDescription());
-            final LocalDate releaseDate = film.getReleaseDate();
             stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
             stmt.setInt(4, film.getDuration());
-            stmt.setLong(5, film.getMpa().getId());
             stmt.setLong(5, film.getMpa().getId());
             return stmt;
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
         log.info("Фильму присвоен id={}", keyHolder.getKey().longValue());
-        if (film.getGenres() != null) {
-            List<Genre> genres = film.getGenres().stream()
-                    .collect(Collectors.toList());
-            String sqlQueryGenres = "insert into FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
-            for (Genre genre: genres) {
-                jdbcTemplate.update(sqlQueryGenres, film.getId(), genre.getId());
-            }
-//        } else {
-//            String sqlQueryGenres = "delete from FILM_GENRE where FILM_ID = ?";
-//            jdbcTemplate.update(sqlQueryGenres, film.getId());
-        }
+
+        String sqlQueryGenres = "insert into FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
+        saveGenres(film, sqlQueryGenres);
+
         return film;
-//            final LocalDate birthday = user.getBirthday();
-//            if (birthday == null) {
-//                stmt.setNull(4, Types.DATE);
-//            } else {
-//                stmt.setDate(4, Date.valueOf(birthday));
+    }
+
+//    Film makeStr(Film film, ResultSet rs) throws SQLException {
+//        String name = rs.getString("MPA_NAME");
+//        film.getMpa().setName(name);
+//        return film;
+//
+//    }
+
+//    private void addFilmGenre(Film film) {
+//        if (film.getGenres() != null) {
+//            String sqlQuery = "insert into FILM_GENRE (FILM_ID, GENRE_ID) " +
+//                    "VALUES (?, ?)";
+//            for (Genre genre: film.getGenres())
+//            jdbcTemplate.update(sqlQuery, film.getId(), genre.getId());
+//        }
+//    }
+
+//    private String getMpaNameToFilm(Film film) {
+//        if (film.getMpa() != null) {
+//            String sqlQuery = "select MPA_NAME from MPA, FILMS where MPA_ID = FILMS.MPA_ID and MPA.MPA_ID = ?";
+//            SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlQuery, film.getMpa().getId());
+//            String mpaName;
+//            if (sqlRowSet.next()) {
+//                mpaName = sqlRowSet.getString("MPA_NAME");
+//                System.out.println(mpaName);
+//                return mpaName;
 //            }
-    }
-
-    Film makeStr(Film film, ResultSet rs) throws SQLException {
-        String name = rs.getString("MPA_NAME");
-        film.getMpa().setName(name);
-        return film;
-
-    }
-
-    private void addFilmGenre(Film film) {
-        if (film.getGenres() != null) {
-            String sqlQuery = "insert into FILM_GENRE (FILM_ID, GENRE_ID) " +
-                    "VALUES (?, ?)";
-            for (Genre genre: film.getGenres())
-            jdbcTemplate.update(sqlQuery, film.getId(), genre.getId());
-        }
-    }
-
-    private String getMpaNameToFilm(Film film) {
-        if (film.getMpa() != null) {
-            String sqlQuery = "select MPA_NAME from MPA, FILMS where MPA_ID = FILMS.MPA_ID and MPA.MPA_ID = ?";
-            SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlQuery, film.getMpa().getId());
-            String mpaName;
-            if (sqlRowSet.next()) {
-                mpaName = sqlRowSet.getString("MPA_NAME");
-                System.out.println(mpaName);
-                return mpaName;
-            }
-        }
-        return null;
-    }
+//        }
+//        return null;
+//    }
 
     @Override
     public Film update(Film film) {
@@ -120,11 +106,29 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId());
+
+        String sqlQueryForGenre = "update FILM_GENRE set FILM_ID = ?, GENRE_ID = ?";
+        saveGenres(film, sqlQueryForGenre);
         return film;
+    }
+
+    private void saveGenres(Film film, String sqlQueryForGenre) {
+        if (film.getGenres() != null && film.getGenres().size() > 0) {
+            for (Genre genre: film.getGenres()) {
+                log.info("Фильм id=" + film.getId() + ". Жанр id=" + genre.getId());
+                jdbcTemplate.update(sqlQueryForGenre, film.getId(), genre.getId());
+            }
+            return;
+        }
+        log.warn("БЕЗ ЖАНРА size={}", film.getGenres().size());
+        String sqlQueryGenres = "delete from FILM_GENRE where FILM_ID = ?";
+        jdbcTemplate.update(sqlQueryGenres, film.getId());
     }
 
     @Override
     public void delete(long id) {
+        String sqlQuery = "delete from FILMS where FILM_ID = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
 
     @Override
@@ -137,7 +141,9 @@ public class FilmDbStorage implements FilmStorage {
         if (films.size() == 0) {
             return null;
         }
-        return films.get(0);
+        Film film = films.get(0);
+
+        return film;
     }
 
     static Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
@@ -160,6 +166,7 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getString("DESCRIPTION"),
                 rs.getDate("RELEASE_DATE").toLocalDate(),
                 rs.getInt("DURATION"),
+                new LinkedHashSet<>(),
                 new Mpa(rs.getLong("MPA_ID"), rs.getString("MPA_NAME")));
     }
 }

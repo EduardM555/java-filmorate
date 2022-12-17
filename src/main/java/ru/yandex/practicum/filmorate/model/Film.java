@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 @Getter
 @Setter
 @NoArgsConstructor
-//@AllArgsConstructor
+@AllArgsConstructor
 @ToString
 @Builder
 @EqualsAndHashCode(of = "id")
@@ -25,9 +25,9 @@ public class Film {
     private LocalDate releaseDate;
     @Min(1)
     private int duration;
-    private Mpa mpa;
 //    private Integer rate;
     private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+    private Mpa mpa;
 
     public Film(long id, String name, String description, LocalDate releaseDate, int duration, Mpa mpa) {
         this.id = id;
@@ -38,18 +38,7 @@ public class Film {
         this.mpa = mpa;
     }
 
-    public Film(long id, String name, String description, @NonNull LocalDate releaseDate, int duration,
-                Mpa mpa, LinkedHashSet<Genre> genres) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpa = mpa;
-        this.genres = genres;
-    }
-
-    //    public Film(String name, String description, LocalDate releaseDate, int duration) {
+//    public Film(String name, String description, LocalDate releaseDate, int duration) {
 //        this.name = name;
 //        this.description = description;
 //        this.releaseDate = releaseDate;
