@@ -24,11 +24,6 @@ public class UserDbStorage implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-//    @Override
-//    public Map<Long, User> findAll() {
-//        return null;
-//    }
-
     public List<User> findAll() {
         String sqlQuery = "select USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY from USERS";
         return jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser);
@@ -109,10 +104,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(long userId, long friendId) {
-//        String sqlQuery = "select u.USER_ID from USERS u" +
-//        String sqlQuery = "select us.USER_ID, us.EMAIL, us.LOGIN, us.USER_NAME, us.BIRTHDAY from USERS us" +
-//                " join FRIENDSHIP fr on us.USER_ID = fr.USER_ID or us.USER_ID = fr.FRIEND_ID" +
-//                " where fr.USER_ID = ? and fr.FRIEND_ID = ?";
         String newSqlQuery = "select * from USERS AS us" +
                 " where us.USER_ID in (select fr1.FRIEND_ID from FRIENDSHIP AS fr1" +
 //                " join (select fr1.FRIEND_ID from FRIENDSHIP AS fr1" +
@@ -128,10 +119,6 @@ public class UserDbStorage implements UserStorage {
         jdbcTemplate.update(sqlQuery, userId, friendId);
 //        jdbcTemplate.update(sqlQuery, friendId, userId);
     }
-
-//    TODO Задать вопрос по методу static
-
-//    TODO Задать вопрос по rowNum - где используется и как
 
     @Override
     public User findUserById(long id) {

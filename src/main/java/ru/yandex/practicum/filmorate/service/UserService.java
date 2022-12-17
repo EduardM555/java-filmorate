@@ -3,14 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import ru.yandex.practicum.filmorate.exception.FriendNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,14 +18,12 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
-//    private long generatedId = 0;
 
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
     public List<User> findAll() {
-//        return userStorage.findAll().values();
         return userStorage.findAll();
     }
 
@@ -36,16 +32,11 @@ public class UserService {
             log.info("Ошибка создания объекта User: {}", user);
             throw new ValidationException("Ошибка валидации пользователя при создании.");
         }
-//        user.setId(generateId());
         log.info("Объекту класса User присовен id: {}", user.getId());
         return userStorage.save(user);
     }
 
     public User update(User user) {
-//        if (!validate(user)) {
-//            log.info("Ошибка обновления объекта User: {}", user);
-//            throw new ValidationException("Ошибка валидации пользователя при обнолвении.");
-//        }
         User newUser = userStorage.findUserById(user.getId());
         if (newUser == null) {
             throw new UserNotFoundException("Ошибка валидации пользователя при обновлении," +
@@ -141,11 +132,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-//    private long generateId() {
-//        ++generatedId;
-//        return generatedId;
-//    }
-
     private boolean validate(User user) {
         if (user.getEmail() == null
                 || user.getEmail().isBlank()
@@ -163,5 +149,4 @@ public class UserService {
         if (user.getBirthday().isAfter(LocalDate.now())) return false;
         return true;
     }
-
 }

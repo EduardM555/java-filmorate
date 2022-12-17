@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -34,10 +33,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findAll() {
-//        String sqlQuery = "select FILM_ID, FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID, " +
-//                "M.MPA_NAME from FILMS " +
-//                "join MPA M on M.MPA_ID = FILMS.MPA_ID";
-        String sqlQuery = "select FILM_ID, FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID from FILMS";
+        String sqlQuery = "select FILM_ID, FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, m.MPA_ID as MPA_ID, " +
+                "m.MPA_NAME as MPA_NAME from FILMS left join MPA m on FILMS.MPA_ID = m.MPA_ID";
         List<Film> films = jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm);
         log.info("Поступил запрос в базу на получение фильмов findAll():\n{}", films);
 //        return jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm);
@@ -73,7 +70,6 @@ public class FilmDbStorage implements FilmStorage {
 //            String sqlQueryGenres = "delete from FILM_GENRE where FILM_ID = ?";
 //            jdbcTemplate.update(sqlQueryGenres, film.getId());
         }
-//        film.getMpa().setMpaName(getMpaNameToFilm(film));
         return film;
 //            final LocalDate birthday = user.getBirthday();
 //            if (birthday == null) {
@@ -81,6 +77,13 @@ public class FilmDbStorage implements FilmStorage {
 //            } else {
 //                stmt.setDate(4, Date.valueOf(birthday));
 //            }
+    }
+
+    Film makeStr(Film film, ResultSet rs) throws SQLException {
+        String name = rs.getString("MPA_NAME");
+        film.getMpa().setName(name);
+        return film;
+
     }
 
     private void addFilmGenre(Film film) {
@@ -126,23 +129,15 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film findFilmById(long id) {
-        final String sqlQuery = "select f.FILM_ID, f.FILM_NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
-                "m.MPA_ID from FILMS as f join MPA as m " +
-                "where f.FILM_ID = ?";
+        final String sqlQuery = "select FILM_ID, FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, " +
+                "m.MPA_ID as MPA_ID , m.MPA_NAME as MPA_NAME from FILMS left join MPA as m" +
+                " on FILMS.MPA_ID = m.MPA_ID where FILM_ID = ?";
         final List<Film> films = jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm, id);
         System.out.println("Список фильмов:\n" + films);
         if (films.size() == 0) {
             return null;
         }
         return films.get(0);
-//        final String sqlQuery = "select USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY" +
-//                " from USERS" +
-//                " where USER_ID = ?";
-//        final List<User> users = jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, id);
-//        if (users.size() != 1) {
-//            return null;
-//        }
-//        return users.get(0);
     }
 
     static Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
@@ -160,12 +155,11 @@ public class FilmDbStorage implements FilmStorage {
 //        System.out.println(rs6);
 //        String rs7 = rs.getString("MPA_NAME");
 //        System.out.println(rs7);
-
         return new Film(rs.getLong("FILM_ID"),
                 rs.getString("FILM_NAME"),
                 rs.getString("DESCRIPTION"),
                 rs.getDate("RELEASE_DATE").toLocalDate(),
                 rs.getInt("DURATION"),
-                new Mpa(rs.getLong("MPA_ID")/*, rs.getString("MPA_NAME")*/));
+                new Mpa(rs.getLong("MPA_ID"), rs.getString("MPA_NAME")));
     }
 }

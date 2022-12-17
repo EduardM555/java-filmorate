@@ -9,7 +9,7 @@ import lombok.*;
 @ToString
 public class Mpa {
     private Long id;
-    private String mpaName;
+    private String name;
 
     public Mpa(Long id) {
         this.id = id;

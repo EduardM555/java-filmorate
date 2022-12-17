@@ -19,14 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmService {
-//    private final FilmStorage filmStorage;
     private final FilmDbStorage filmDbStorage;
-//    private long generatedId = 0;
-
-//    public FilmService(FilmStorage filmStorage) {
-//        this.filmStorage = filmStorage;
-//    }
-
 
     public FilmService(FilmDbStorage filmDbStorage) {
         this.filmDbStorage = filmDbStorage;
@@ -42,7 +35,6 @@ public class FilmService {
             log.info("Ошибка создания объекта Film: {}", film);
             throw new ValidationException("Ошибка валидации фильма при создании.");
         }
-//        film.setId(generateId());
         log.info("Сейчас будет запись фильма в базу и присоение id");
         return filmDbStorage.save(film);
     }
@@ -58,10 +50,6 @@ public class FilmService {
 
     public Film getFilmById(long filmId) {
         Film film = filmDbStorage.findFilmById(filmId);
-//        if (!validate(film)) {
-//            log.info("Ошибка получения объекта Film: {}", film);
-//            throw new ValidationException("Ошибка валидации фильма при получении.");
-//        }
         if (film == null) {
             throw new FilmNotFoundException("Фильма с id=" + filmId + " в базе нет.");
         }
@@ -96,9 +84,4 @@ public class FilmService {
         if (film.getDuration() < 0) return false;
         return true;
     }
-
-//    private long generateId() {
-//        ++generatedId;
-//        return generatedId;
-//    }
 }
