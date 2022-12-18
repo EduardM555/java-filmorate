@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,12 +20,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
     private final FilmDbStorage filmDbStorage;
+    private final UserService userService;
 
-    public FilmService(FilmDbStorage filmDbStorage) {
-        this.filmDbStorage = filmDbStorage;
-    }
 
     public List<Film> findAll() {
         log.info("Сейчас будет запрос в базу на получение фильмов findAll()");
@@ -62,11 +63,15 @@ public class FilmService {
 
 
     public void addLike(long id, long userId) {
-//        filmStorage.findFilmById(id).addLike(userId);
+        userService.getUserById(userId);
+        getFilmById(id);
+        filmDbStorage.addLike(id, userId);
     }
 
     public void removeLike(long id, long userid) {
-//        filmStorage.findFilmById(id).removeLike(userid);
+        userService.getUserById(userid);
+        getFilmById(id);
+        filmDbStorage.removeLike(id, userid);
     }
 
     public List<Film> getPopularFilms(long count) {

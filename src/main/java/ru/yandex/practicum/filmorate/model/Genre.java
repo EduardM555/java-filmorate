@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -7,6 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 public class Genre {
     private long id;
     private String name;
@@ -15,8 +17,4 @@ public class Genre {
         this.id = id;
     }
 
-    public Genre(long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 }

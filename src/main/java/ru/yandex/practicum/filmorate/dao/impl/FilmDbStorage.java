@@ -4,20 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Component
+@Repository
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
 
@@ -26,11 +23,6 @@ public class FilmDbStorage implements FilmStorage {
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
-//    @Override
-//    public Map<Long, Film> findAll() {
-//        return null;
-//    }
 
     @Override
     public List<Film> findAll() {
@@ -113,16 +105,16 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void saveGenres(Film film, String sqlQueryForGenre) {
+        String sqlQueryGenres = "delete from FILM_GENRE where FILM_ID = ?";
+        jdbcTemplate.update(sqlQueryGenres, film.getId());
         if (film.getGenres() != null && film.getGenres().size() > 0) {
             for (Genre genre: film.getGenres()) {
                 log.info("Фильм id=" + film.getId() + ". Жанр id=" + genre.getId());
                 jdbcTemplate.update(sqlQueryForGenre, film.getId(), genre.getId());
             }
-            return;
+        } else {
+            log.warn("БЕЗ ЖАНРА size={}", film.getGenres().size());
         }
-        log.warn("БЕЗ ЖАНРА size={}", film.getGenres().size());
-        String sqlQueryGenres = "delete from FILM_GENRE where FILM_ID = ?";
-        jdbcTemplate.update(sqlQueryGenres, film.getId());
     }
 
     @Override
@@ -137,13 +129,29 @@ public class FilmDbStorage implements FilmStorage {
                 "m.MPA_ID as MPA_ID , m.MPA_NAME as MPA_NAME from FILMS left join MPA as m" +
                 " on FILMS.MPA_ID = m.MPA_ID where FILM_ID = ?";
         final List<Film> films = jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm, id);
-        System.out.println("Список фильмов:\n" + films);
+        log.info("Список фильмов:\n" + films);
         if (films.size() == 0) {
             return null;
         }
         Film film = films.get(0);
 
         return film;
+    }
+
+    @Override
+    public void addLike(long filmId, long userId) {
+        String sqlQuery = "insert into LIKES (FILM_ID, USER_ID) VALUES (?, ?)";
+        jdbcTemplate.update(sqlQuery, filmId, userId);
+    }
+
+    @Override
+    public void removeLike(long filmId, long userid) {
+        String sqlQuery = "delete from LIKES where FILM_ID = ? and USER_ID = ?";
+        jdbcTemplate.update(sqlQuery, filmId, userid);
+    }
+
+    public List<Film> getPopularFilm(long count) {
+        return null;
     }
 
     static Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
