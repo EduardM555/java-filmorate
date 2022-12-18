@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.sql.*;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @Slf4j
@@ -113,7 +114,7 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(sqlQueryForGenre, film.getId(), genre.getId());
             }
         } else {
-            log.warn("БЕЗ ЖАНРА size={}", film.getGenres().size());
+            log.info("БЕЗ ЖАНРА size={}", film.getGenres().size());
         }
     }
 
@@ -126,15 +127,17 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film findFilmById(long id) {
         final String sqlQuery = "select FILM_ID, FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, " +
-                "m.MPA_ID as MPA_ID , m.MPA_NAME as MPA_NAME from FILMS left join MPA as m" +
+                "m.MPA_ID as MPA_ID, m.MPA_NAME as MPA_NAME from FILMS left join MPA as m" +
                 " on FILMS.MPA_ID = m.MPA_ID where FILM_ID = ?";
         final List<Film> films = jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm, id);
-        log.info("Список фильмов:\n" + films);
+//        log.info("Список фильмов:\n" + films);
         if (films.size() == 0) {
             return null;
         }
         Film film = films.get(0);
-
+//        Film film = jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm, id).get(0);
+//        log.info("Фильм из базы: " + film);
+//        return Objects.requireNonNullElse(film, null);
         return film;
     }
 
@@ -150,25 +153,23 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlQuery, filmId, userid);
     }
 
+    @Override
     public List<Film> getPopularFilm(long count) {
-        return null;
+        log.warn("Запрос getPopularFilm(long count), count={}", count);
+        String sqlQuery = "select f.FILM_ID as FILM_ID, f.FILM_NAME as FILM_NAME, f.DESCRIPTION as DESCRIPTION, " +
+                "f.RELEASE_DATE as RELEASE_DATE, f.DURATION as DURATION, " +
+                "m.MPA_ID as MPA_ID, m.MPA_NAME as MPA_NAME from FILMS as f " +
+                "left join FILM_GENRE as fg on f.FILM_ID = fg.FILM_ID " +
+                "left join MPA as m on f.MPA_ID = m.MPA_ID " +
+                "left join LIKES l on f.FILM_ID = l.FILM_ID " +
+                "group by f.FILM_ID " +
+                "order by count(l.USER_ID) desc " +
+                "limit ?";
+        log.error("Результат выпонления SQL запроса");
+        return jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm, count);
     }
 
     static Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-//        long rs1 = rs.getLong("FILM_ID");
-//        System.out.println(rs1);
-//        String rs2 = rs.getString("FILM_NAME");
-//        System.out.println(rs2);
-//        String rs3 =  rs.getString("DESCRIPTION");
-//        System.out.println(rs3);
-//        LocalDate rs4 = rs.getDate("RELEASE_DATE").toLocalDate();
-//        System.out.println(rs4);
-//        int rs5 = rs.getInt("DURATION");
-//        System.out.println(rs5);
-//        long rs6 = rs.getLong("MPA_ID");
-//        System.out.println(rs6);
-//        String rs7 = rs.getString("MPA_NAME");
-//        System.out.println(rs7);
         return new Film(rs.getLong("FILM_ID"),
                 rs.getString("FILM_NAME"),
                 rs.getString("DESCRIPTION"),

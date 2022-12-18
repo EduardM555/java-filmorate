@@ -75,11 +75,12 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(long count) {
+        log.error("Запрос в SERVICE getPopularFilms(), count={}", count);
 //        return findAll().stream()
 //                .sorted((x1, x2) -> (int) (x2.getRate() - x1.getRate()))
 //                .limit(count)
 //                .collect(Collectors.toList());
-        return null;
+        return filmDbStorage.getPopularFilm(count);
     }
 
     private boolean validate(Film film) {

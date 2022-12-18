@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @Slf4j
@@ -25,8 +26,14 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre getGenreById(long id) {
-        String sqlQuery = "";
-        return jdbcTemplate.query(sqlQuery, GenreDbStorage::makeGenre, id).get(0);
+        log.warn("Делается запрос в БАЗУ на получение жанра Genre по id={}", id);
+        String sqlQuery = "select GENRE_ID, GENRE_NAME from GENRES where GENRE_ID = ?";
+        List<Genre> genres = jdbcTemplate.query(sqlQuery, GenreDbStorage::makeGenre, id);
+        if (genres == null || genres.isEmpty())  {
+            return null;
+        }
+        log.warn("Жанр Genre получен: {}", genres);
+        return genres.get(0);
     }
 
     private static Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {

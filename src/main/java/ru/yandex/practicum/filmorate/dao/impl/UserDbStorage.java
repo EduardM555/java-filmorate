@@ -129,6 +129,8 @@ public class UserDbStorage implements UserStorage {
             return null;
         }
         return users.get(0);
+//        User user = jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, id).get(0);
+//        return Objects.requireNonNullElse(user, null);
     }
 
     static User makeUser(ResultSet rs, int rowNum) throws SQLException {

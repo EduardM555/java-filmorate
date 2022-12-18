@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.GenreStorage;
+import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
@@ -19,7 +20,15 @@ public class GenreService {
     }
 
     public Genre getGenreById(long id) {
-        return genreStorage.getGenreById(id);
+        log.info("Запрос на получения жанра с id={}", id);
+        Genre genre = genreStorage.getGenreById(id);
+        log.info("Жанр должен быть получен = {}", genre);
+        if (genre == null) {
+            log.warn("Жанр равен null={}", genre);
+            throw new GenreNotFoundException("Жанра в базе нет с id=" + id);
+        }
+        log.info("Жанр успешно получен и будет возвращен. {}", genre);
+        return genre;
     }
 
 }
