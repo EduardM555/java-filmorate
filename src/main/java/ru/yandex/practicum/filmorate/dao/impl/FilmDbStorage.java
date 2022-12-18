@@ -61,7 +61,6 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
         log.info("Фильму присвоен id={}", keyHolder.getKey().longValue());
-
 //        String sqlQueryGenres = "insert into FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
         saveGenres(film);
 
@@ -70,6 +69,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
+        log.info("Размер жанров в самом начале = {}, Жанры = {}", film.getGenres().size(), film.getGenres());
+
         String sqlQuery = "update FILMS set FILM_NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, " +
                 "DURATION = ?, MPA_ID = ? where FILM_ID = ?";
         jdbcTemplate.update(sqlQuery,
@@ -80,9 +81,9 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId());
 
-//        String sqlQueryForGenre = "update FILM_GENRE set FILM_ID = ?, GENRE_ID = ?";
-//        String sqlQueryForGenre = "insert into FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
         saveGenres(film);
+        log.info("Размер жанров перед отправкой = {}, Жанры = {}", film.getGenres().size(), film.getGenres());
+
         return film;
     }
 
@@ -92,12 +93,14 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQueryForGenre = "insert into FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
         if (film.getGenres() != null) {
             for (Genre genre: film.getGenres()) {
-                log.info("saveGenre()- Фильм id=" + film.getId() + ". Жанр id=" + genre.getId());
                 jdbcTemplate.update(sqlQueryForGenre, film.getId(), genre.getId());
+                log.info("saveGenre() - Фильм id=" + film.getId() + ". Жанр id=" + genre.getId());
             }
         } else {
             log.info("БЕЗ ЖАНРА size={}", film.getGenres().size());
         }
+        log.info("saveGenre() - film.getGenres().size()={}", film.getGenres().size());
+
     }
 
     @Override
@@ -121,22 +124,6 @@ public class FilmDbStorage implements FilmStorage {
         log.info("Поступил запрос в базу на получение фильма:\n{}", film);
         log.info("Тип жанра {}", film.getGenres().getClass());
         log.info("Жанры {}", film.getGenres());
-
-//        film.setGenres(getGenreByFilmId(id));
-//        log.warn("А теперь фильм с жанром:\n{}", film);
-
-//        if (film.getGenres().isEmpty()) {
-//            String sqlQueryForGenre = "select GENRE_ID, GENRE_NAME from GENRES " +
-//                    "left join FILM_GENRE FG on GENRES.GENRE_ID = FG.GENRE_ID " +
-//                    "left join FILMS as f on FG.FILM_ID = f.FILM_ID " +
-//                    "where FILM_ID = ?";
-//
-//            jdbcTemplate.query(sqlQueryForGenre, GenreDbStorage::makeGenre, film.getId());
-//        }
-//        loadGenres(film, sqlQueryForGenre);
-//        Film film = jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm, id).get(0);
-//        log.info("Фильм из базы: " + film);
-//        return Objects.requireNonNullElse(film, null);
         return film;
     }
 
