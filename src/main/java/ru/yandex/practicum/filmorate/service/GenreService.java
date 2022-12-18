@@ -20,9 +20,7 @@ public class GenreService {
     }
 
     public Genre getGenreById(long id) {
-        log.info("Запрос на получения жанра с id={}", id);
         Genre genre = genreStorage.getGenreById(id);
-        log.info("Жанр должен быть получен = {}", genre);
         if (genre == null) {
             log.warn("Жанр равен null={}", genre);
             throw new GenreNotFoundException("Жанра в базе нет с id=" + id);
@@ -30,5 +28,4 @@ public class GenreService {
         log.info("Жанр успешно получен и будет возвращен. {}", genre);
         return genre;
     }
-
 }

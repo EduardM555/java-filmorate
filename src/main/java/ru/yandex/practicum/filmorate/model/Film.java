@@ -25,36 +25,6 @@ public class Film {
     private LocalDate releaseDate;
     @Min(1)
     private int duration;
-//    private Integer rate;
     private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
     private Mpa mpa;
-
-    public Film(long id, String name, String description, LocalDate releaseDate, int duration, Mpa mpa) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpa = mpa;
-    }
-
-//    public Film(String name, String description, LocalDate releaseDate, int duration) {
-//        this.name = name;
-//        this.description = description;
-//        this.releaseDate = releaseDate;
-//        this.duration = duration;
-//    }
-
-//    public void addLike(long userId) {
-//        userIds.add(userId);
-//        rate = userIds.size();
-//    }
-//
-//    public void removeLike(long userId) {
-//        if (!userIds.contains(userId)) {
-//            throw new UserNotFoundException("Пользователя id: " + userId + " в базе нет.");
-//        }
-//        userIds.remove(userId);
-//        rate = userIds.size();
-//    }
 }

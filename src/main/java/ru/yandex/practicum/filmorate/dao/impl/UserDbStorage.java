@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -15,29 +16,14 @@ import java.util.*;
 
 @Repository
 @Slf4j
-//@Component
+@RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     public List<User> findAll() {
         String sqlQuery = "select USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY from USERS";
-        return jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser);
+        return jdbcTemplate.query(sqlQuery, this::makeUser);
     }
-
-
-//    public Map<Long, User> findAll() {
-//        Map<Long, User> users = new HashMap<>();
-//        String sqlQuery = "select USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY from USERS";
-//        jdbcTemplate.queryForStream(sqlQuery, UserDbStorage::makeUser)
-//                .collect(Collectors.toList())
-////                .map(user -> users.put(user.getId(), user))
-//                .forEach(user -> users.put(user.getId(), user));
-//        return users;
-//    }
 
     @Override
     public User save(User user) {
@@ -81,7 +67,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(long userId, long friendId) {
-//        String sqlQuery = "insert into FRIENDSHIP (FRIEND_ID, USER_ID) "
         String sqlQuery = "insert into FRIENDSHIP (USER_ID, FRIEND_ID) "
                 + "VALUES (?, ?)";
         log.info("Начало выпонление метода addFriend(long userId, long friendId), {}, {}", userId, friendId);
@@ -91,12 +76,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getFriends(long userId) {
-//        String sqlQuery = "select FRIEND_ID from FRIENDSHIP where USER_ID = ?";
         String sqlQuery = "select u.USER_ID, u.EMAIL, u.LOGIN, u.USER_NAME, u.BIRTHDAY from USERS AS u" +
                 " join FRIENDSHIP AS f on u.USER_ID = f.FRIEND_ID" +
                 " where f.USER_ID = ?";
         log.info("Начало выполнение метода List<User> getFriends(long userId) = {}", userId);
-        List<User> users = jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, userId);
+        List<User> users = jdbcTemplate.query(sqlQuery, this::makeUser, userId);
         log.info("Окончание выполнение метода List<User> getFriends(long userId) = {}, size()={}", userId, users.size());
         return users;
     }
@@ -105,18 +89,15 @@ public class UserDbStorage implements UserStorage {
     public List<User> getCommonFriends(long userId, long friendId) {
         String newSqlQuery = "select * from USERS AS us" +
                 " where us.USER_ID in (select fr1.FRIEND_ID from FRIENDSHIP AS fr1" +
-//                " join (select fr1.FRIEND_ID from FRIENDSHIP AS fr1" +
                 " join FRIENDSHIP AS fr2" +
                 " where fr1.USER_ID = ? and fr2.USER_ID = ?)";
-//        return jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, userId, friendId);
-        return jdbcTemplate.query(newSqlQuery, UserDbStorage::makeUser, userId, friendId);
+        return jdbcTemplate.query(newSqlQuery, this::makeUser, userId, friendId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
         String sqlQuery = "delete from FRIENDSHIP where USER_ID = ? and FRIEND_ID = ?";
         jdbcTemplate.update(sqlQuery, userId, friendId);
-//        jdbcTemplate.update(sqlQuery, friendId, userId);
     }
 
     @Override
@@ -124,16 +105,14 @@ public class UserDbStorage implements UserStorage {
         final String sqlQuery = "select USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY"
                 + " from USERS"
                 + " where USER_ID = ?";
-        final List<User> users = jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, id);
+        final List<User> users = jdbcTemplate.query(sqlQuery, this::makeUser, id);
         if (users.size() != 1) {
             return null;
         }
         return users.get(0);
-//        User user = jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, id).get(0);
-//        return Objects.requireNonNullElse(user, null);
     }
 
-    static User makeUser(ResultSet rs, int rowNum) throws SQLException {
+    private User makeUser(ResultSet rs, int rowNum) throws SQLException {
         return new User(rs.getLong("USER_ID"),
                 rs.getString("EMAIL"),
                 rs.getString("LOGIN"),

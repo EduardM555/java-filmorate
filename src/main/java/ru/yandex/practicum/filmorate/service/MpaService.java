@@ -20,9 +20,7 @@ public class MpaService {
     }
 
     public Mpa getMpaById(long id) {
-        log.warn("Запрос на получения MPA с id={}", id);
         Mpa mpa = mpaStorage.getMpaById(id);
-        log.warn("MPA должен быть получен = {}", mpa);
         if (mpa == null) {
             log.warn("MPA равен null={}", mpa);
             throw new MpaNotFoundException("В базе нет рейтинга MPA с id=" + id);

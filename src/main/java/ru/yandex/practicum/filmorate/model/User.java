@@ -25,22 +25,4 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
-
-//    @JsonIgnore
-//    private Set<Long> friendsIds = new HashSet<>();
-
-    public User(@Valid String email, String login, String name, LocalDate birthday) {
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
-    }
-
-//    public User(long id, String email, @NonNull String login, String name, LocalDate birthday) {
-//        this.id = id;
-//        this.email = email;
-//        this.login = login;
-//        this.name = name;
-//        this.birthday = birthday;
-//    }
 }

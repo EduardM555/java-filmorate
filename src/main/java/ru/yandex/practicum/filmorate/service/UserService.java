@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +16,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
-
     private final UserStorage userStorage;
-
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
 
     public List<User> findAll() {
         return userStorage.findAll();
@@ -29,7 +26,7 @@ public class UserService {
 
     public User create(User user) {
         if (!validate(user)) {
-            log.info("Ошибка создания объекта User: {}", user);
+            log.warn("Ошибка создания объекта User: {}", user);
             throw new ValidationException("Ошибка валидации пользователя при создании.");
         }
         log.info("Объекту класса User присовен id: {}", user.getId());
@@ -57,74 +54,21 @@ public class UserService {
         return user;
     }
 
-//    public void addFriend(long userId, long friendId) {
-//        User user = userStorage.findAll().get(userId);
-//        User friend = userStorage.findAll().get(friendId);
-//        if (!userStorage.findAll().containsKey(userId)) {
-//            throw new UserNotFoundException("Ошибка валидации пользователя при добавдении в друзья в storage.");
-//        }
-//        if (!userStorage.findAll().containsKey(friendId)) {
-//            throw new FriendNotFoundException("Ошибка валидации друга при добавдении в друзья в storage.");
-//        }
-//        user.getFriendsIds().add(friend.getId());
-//        log.info("В друзья объекта User добавлен объект с friendId {}", friendId);
-//        friend.getFriendsIds().add(user.getId());
-//        log.info("В друзья объекта User-Friend добавлен объект с userId {}", userId);
-//    }
-
     public void addFriend(long userId, long friendId) {
-//        if (getUserById(userId) == null) {
-//            throw new UserNotFoundException("Ошибка валидации пользователя при добавдении в друзья," +
-//                    " userId=" + userId);
-//        }
-//        if (getUserById(friendId) == null) {
-//            throw new FriendNotFoundException("Ошибка валидации друга при добавдении в друзья, friendId=" +
-//                    friendId);
-//        }
         getUserById(userId);
         getUserById(friendId);
         userStorage.addFriend(userId, friendId);
     }
 
-//    public void removeFriend(long userId, long friendId) {
-//        User user = userStorage.findAll().get(userId);
-//        User friend = userStorage.findAll().get(friendId);
-//        if (!userStorage.findAll().containsKey(userId)) {
-//            throw new UserNotFoundException("Ошибка валидации пользователя при удалении из друзей из storage.");
-//        }
-//        if (!userStorage.findAll().containsKey(friendId)) {
-//            throw new FriendNotFoundException("Ошибка валидации друга при удалении из друзей из storage.");
-//        }
-//        user.getFriendsIds().remove(friend.getId());
-//        log.info("Из друзей объекта User удален объект с friendId {}", friendId);
-//        friend.getFriendsIds().remove(user.getId());
-//        log.info("Из друзей объекта User-Friend удален объект с userId {}", userId);
-//    }
     public void removeFriend(long userId, long friendId) {
         userStorage.removeFriend(userId, friendId);
     }
 
-//    public List<User> getFriends(long userId) {
-//        return userStorage.findAll().get(userId).getFriendsIds().stream()
-//                .map(id -> userStorage.findAll().get(id))
-//                .collect(Collectors.toList());
-//    }
 
     public List<User> getFriends(long userId) {
         getUserById(userId);
         return userStorage.getFriends(userId);
     }
-
-//    public Collection<User> getCommonFriends(long userId, long friendId) {
-//        return userStorage.findAll().get(userId).getFriendsIds().stream()
-//                .filter(id -> userStorage.findAll().get(friendId).getFriendsIds().contains(id))
-//                .map(id -> userStorage.findAll().get(id))
-//                .collect(Collectors.toList());
-//    }
-
-//    public List<User> getCommonFriends(long userId, long friendId) {
-//        return userStorage.getCommonFriends(userId, friendId);
-//    }
 
     public List<User> getCommonFriends(long userId, long friendId) {
         return getFriends(userId).stream()
