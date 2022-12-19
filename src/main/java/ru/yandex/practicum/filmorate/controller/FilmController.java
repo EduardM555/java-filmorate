@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -23,23 +24,23 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public List<Film> findAll() {
-        return filmService.findAll();
+    public ResponseEntity<List<Film>> findAll() {
+        return ResponseEntity.ok().body(filmService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable("id") long id) throws ValidationException, FilmNotFoundException {
-        return filmService.getFilmById(id);
+    public ResponseEntity<Film> getFilmById(@PathVariable("id") long id) throws ValidationException, FilmNotFoundException {
+        return ResponseEntity.ok().body(filmService.getFilmById(id));
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) throws ValidationException {
-        return filmService.create(film);
+    public ResponseEntity<Film> create(@Valid @RequestBody Film film) throws ValidationException {
+        return ResponseEntity.ok().body(filmService.create(film));
     }
 
     @PutMapping
-    public Film putFilm(@Valid @RequestBody Film film) throws ValidationException, FilmNotFoundException {
-        return filmService.putFilm(film);
+    public ResponseEntity<Film> putFilm(@Valid @RequestBody Film film) throws ValidationException, FilmNotFoundException {
+        return ResponseEntity.ok().body(filmService.putFilm(film));
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -55,8 +56,8 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(
+    public ResponseEntity<List<Film>> getPopularFilms(
             @RequestParam(value = "count", defaultValue = "10", required = false) long count) {
-        return filmService.getPopularFilms(count);
+        return ResponseEntity.ok().body(filmService.getPopularFilms(count));
     }
 }

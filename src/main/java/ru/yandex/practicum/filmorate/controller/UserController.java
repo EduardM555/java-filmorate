@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.FriendNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -22,28 +23,27 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> findAll() {
-        return userService.findAll();
+    public ResponseEntity<List<User>> findAll() {
+        return ResponseEntity.ok().body(userService.findAll());
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") long id) throws UserNotFoundException {
-        return userService.getUserById(id);
+    public ResponseEntity<User> getUserById(@PathVariable("id") long id) throws UserNotFoundException {
+        return ResponseEntity.ok().body(userService.getUserById(id));
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) throws ValidationException {
-        return userService.create(user);
+    public ResponseEntity<User> create(@Valid @RequestBody User user) throws ValidationException {
+        return ResponseEntity.ok().body(userService.create(user));
     }
 
     @PutMapping
-    public User putUser(@Valid @RequestBody User user) throws UserNotFoundException, FriendNotFoundException {
-        return userService.update(user);
+    public ResponseEntity<User> putUser(@Valid @RequestBody User user) throws UserNotFoundException, FriendNotFoundException {
+        return ResponseEntity.ok().body(userService.update(user));
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable("id") long id,
-                          @PathVariable("friendId") long friendId)
+    public void addFriend(@PathVariable("id") long id, @PathVariable("friendId") long friendId)
             throws UserNotFoundException, FriendNotFoundException {
         userService.addFriend(id, friendId);
     }
@@ -55,14 +55,15 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable("id") long id) throws UserNotFoundException {
-        return userService.getFriends(id);
+    public ResponseEntity<List<User>> getFriends(@PathVariable("id") long id) throws UserNotFoundException {
+        return ResponseEntity.ok().body(userService.getFriends(id));
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable("id") long id,
-                                             @PathVariable("otherId") long otherId) {
-        return userService.getCommonFriends(id, otherId);
+    public ResponseEntity<List<User>> getCommonFriends(@PathVariable("id") long id,
+                                                       @PathVariable("otherId") long otherId)
+            throws UserNotFoundException {
+        return ResponseEntity.ok().body(userService.getCommonFriends(id, otherId));
     }
 
 
