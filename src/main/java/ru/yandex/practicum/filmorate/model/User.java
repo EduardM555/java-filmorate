@@ -16,23 +16,13 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode(of = "id")
-public class User extends StorageData {
-
+public class User {
+    private long id;
     @Email
     private String email;
+    @NonNull
     @NotBlank
     private String login;
     private String name;
     private LocalDate birthday;
-    private String status;
-
-    @JsonIgnore
-    private Set<Long> friendsIds = new HashSet<>();
-
-    public User(@Valid String email, String login, String name, LocalDate birthday) {
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
-    }
 }
